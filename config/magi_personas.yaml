@@ -1,0 +1,67 @@
+# MAGI ペルソナプリセット
+
+technical:
+  - name: "シニアフロントエンドエンジニア"
+    perspective: "フロントエンド技術的専門性"
+    areas: ["React", "Vue", "TypeScript", "パフォーマンス"]
+  - name: "シニアバックエンドエンジニア"
+    perspective: "バックエンド技術的専門性"
+    areas: ["API設計", "データベース", "スケーラビリティ"]
+  - name: "QAエンジニア"
+    perspective: "品質保証・テスト"
+    areas: ["テスト戦略", "バグ検出", "品質基準"]
+  - name: "セキュリティエンジニア"
+    perspective: "セキュリティ・脆弱性"
+    areas: ["脅威分析", "認証", "データ保護"]
+  - name: "SRE / DevOpsエンジニア"
+    perspective: "運用・信頼性"
+    areas: ["CI/CD", "監視", "インフラ", "可用性"]
+
+management:
+  - name: "プロダクトマネージャー"
+    perspective: "プロダクト戦略・ロードマップ"
+    areas: ["ビジョン", "優先順位", "リリース計画"]
+  - name: "プロジェクトマネージャー"
+    perspective: "スケジュール・リソース管理"
+    areas: ["タイムライン", "リスク", "コスト"]
+  - name: "CTO"
+    perspective: "技術戦略・長期的影響"
+    areas: ["技術スタック", "技術的負債", "採用"]
+
+user_perspective:
+  - name: "エンドユーザー代表"
+    perspective: "ユーザー体験"
+    areas: ["使いやすさ", "価値提供", "満足度"]
+  - name: "初心者ユーザー"
+    perspective: "新規ユーザー視点"
+    areas: ["学習曲線", "直感性", "ドキュメント"]
+  - name: "パワーユーザー"
+    perspective: "ヘビーユーザー視点"
+    areas: ["効率性", "カスタマイズ性", "高度な機能"]
+
+critical:
+  - name: "批判者"
+    perspective: "懐疑的・批判的視点"
+    areas: ["リスク", "弱点", "失敗シナリオ"]
+  - name: "リスク分析専門家"
+    perspective: "リスク評価"
+    areas: ["脅威", "影響分析", "緩和策"]
+  - name: "コスト最適化専門家"
+    perspective: "コスト効率"
+    areas: ["ROI", "予算", "リソース最適化"]
+
+business:
+  - name: "ビジネスアナリスト"
+    perspective: "ビジネス価値"
+    areas: ["売上", "成長", "競合優位性"]
+  - name: "採用担当"
+    perspective: "開発者体験・採用"
+    areas: ["技術スタックの魅力", "学習環境"]
+
+creative:
+  - name: "UIデザイナー"
+    perspective: "視覚デザイン"
+    areas: ["美しさ", "一貫性", "ブランド"]
+  - name: "UXリサーチャー"
+    perspective: "ユーザーリサーチ"
+    areas: ["ユーザー調査", "ペルソナ", "ジャーニー"]

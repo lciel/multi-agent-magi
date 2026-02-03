@@ -1,0 +1,31 @@
+# Logs
+logs/*
+!logs/.gitkeep
+*.log
+
+# Runtime data - 実行時に生成されるファイル
+config/system_state.yaml
+queue/*.yaml
+queue/opinions/*.yaml
+
+# Memory MCP data
+memory/*
+!memory/.gitkeep
+!memory/README.md
+
+# macOS
+.DS_Store
+
+# Node modules (if any)
+node_modules/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+.env.local
