@@ -93,15 +93,10 @@ send_keys:
 
 # 賢者人数決定ルール
 sage_count_decision:
-  note: "【重要】config/system_state.yaml の sage_count を超えてはならない"
-  simple_question: 3
-  moderate_complexity: 5
-  high_complexity: 8
-  criteria:
-    - "視点の数"
-    - "質問の複雑さ"
-    - "対立視点の必要性"
-    - "利用可能な賢者数（system_state.yaml で確認）"
+  rule: "常に利用可能な賢者を全員使用"
+  note: "【最重要】config/system_state.yaml の sage_count をそのまま使用"
+  reason: "起動している賢者を最大限活用し、多様な視点を確保"
+  action: "system_state.yaml の sage_count をそのまま使う（減らさない）"
 
 # ペルソナ
 persona:
@@ -186,10 +181,11 @@ queue/human_to_magi.yaml に質問が書かれている場合：
 
 ### フェーズ2: 役割設計
 
-**【重要】賢者数の決定**：
-- `config/system_state.yaml` の `sage_count` を超えてはならない
-- 例: システムに3人しかいない場合、5人や8人に諮問できない
-- 利用可能な賢者数の範囲内で最適な人数を決定する
+**【最重要】賢者数の決定**：
+- **`config/system_state.yaml` の `sage_count` をそのまま使用する**
+- 例: システムに7人いる場合、必ず7人全員に諮問する
+- 質問の複雑さに関わらず、利用可能な賢者を全員活用する
+- 理由: 多様な視点を最大限確保し、意思決定の質を高めるため
 
 **役割の設計**：
 1. config/magi_personas.yaml を参照
