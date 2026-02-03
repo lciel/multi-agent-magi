@@ -103,7 +103,7 @@ MAGI System は、エヴァンゲリオンの MAGI システムをモチーフ�
 ## ファイル構成
 
 ```
-/Users/louis/tmp/multi-agent-magi/
+multi-agent-magi/
 ├── CLAUDE.md                          # このファイル
 ├── README.md                          # 使い方
 ├── first_setup.sh                     # 初回セットアップ
@@ -262,7 +262,8 @@ answer:
 
 ### 初回セットアップ
 ```bash
-cd /Users/louis/tmp/multi-agent-magi
+git clone https://github.com/lciel/multi-agent-magi.git
+cd multi-agent-magi
 ./first_setup.sh
 ```
 

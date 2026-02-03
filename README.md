@@ -89,7 +89,8 @@ MAGI System は、エヴァンゲリオンの MAGI システムをモチーフ�
 ### セットアップ
 
 ```bash
-cd /Users/louis/tmp/multi-agent-magi
+git clone https://github.com/lciel/multi-agent-magi.git
+cd multi-agent-magi
 chmod +x first_setup.sh launch_magi.sh
 ./first_setup.sh
 ```
@@ -168,7 +169,7 @@ cat queue/final_answer.yaml
 ## ディレクトリ構造
 
 ```
-/Users/louis/tmp/multi-agent-magi/
+multi-agent-magi/
 ├── CLAUDE.md                    # システム詳細仕様
 ├── README.md                    # このファイル
 ├── first_setup.sh               # 初回セットアップ
