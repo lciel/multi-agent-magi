@@ -353,8 +353,7 @@ npm install -g @anthropic-ai/claude-code
 
 ## ライセンス
 
-- MAGI System: オリジナル実装
-- Evangelion MAGI System: モチーフとして使用（著作権: カラー）
+MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
 
 ---
 

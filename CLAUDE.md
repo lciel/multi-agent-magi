@@ -335,11 +335,9 @@ tmux attach-session -t nerv
 
 ---
 
-## ライセンス・著作権
+## ライセンス
 
-- MAGI System: オリジナル実装
-- Evangelion MAGI System: モチーフとして使用（著作権: カラー）
-- tmux send-keys プロトコル: multi-agent-shogun から継承
+MIT License - 詳細は [LICENSE](LICENSE) を参照してください。
 
 ---
 
