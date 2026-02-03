@@ -99,8 +99,8 @@ while [[ $# -gt 0 ]]; do
         -n|--sages)
             if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
                 SAGE_COUNT=$2
-                if [ "$SAGE_COUNT" -lt 3 ] || [ "$SAGE_COUNT" -gt 8 ]; then
-                    echo "エラー: 賢者数は3-8の範囲で指定してください（指定値: $SAGE_COUNT）"
+                if [ "$SAGE_COUNT" -lt 3 ] || [ "$SAGE_COUNT" -gt 7 ]; then
+                    echo "エラー: 賢者数は3-7の範囲で指定してください（指定値: $SAGE_COUNT）"
                     exit 1
                 fi
                 shift 2
@@ -345,27 +345,49 @@ fi
 # インデックス配列を使用（bash 3.x 互換）
 declare -a SAGE_PANE_MAP
 
-if [ $SAGE_COUNT -le 4 ]; then
-    # 1-4 sages: 2列レイアウト (MAGI 左 35% | sages 右 65%)
+# 全賢者数で統一: 2列レイアウト (MAGI 35% | sages 65%)
 
-    # Step 1: 左右に分割（マギ35% | 賢者エリア65%）
-    tmux split-window -h -t "nerv:0" -p 65
+# Step 1: 左右に分割（MAGI 35% | 賢者エリア 65%）
+tmux split-window -h -t "nerv:0" -p 65 || {
+    echo ""
+    log_error "❌ ペイン作成エラー"
+    echo "  ターミナルウィンドウサイズが不足しています。"
+    echo ""
+    exit 1
+}
 
-    # Step 2: 右側に賢者を配置（2人目以降）
-    for ((i=2; i<=SAGE_COUNT; i++)); do
-        tmux split-window -v -b -t "nerv:0.1"
-    done
+# Step 2: 賢者エリアを順次縦分割（sage2-N）
+# pane 1 → 2 → 3 → 4 → 5 → ... の順で作成
+# 各分割後に main-vertical レイアウトを適用してスペースを再分配
+LAST_PANE=1
+for ((i=2; i<=SAGE_COUNT; i++)); do
+    tmux split-window -v -t "nerv:0.${LAST_PANE}" || {
+        echo ""
+        log_error "❌ ペイン作成エラー（sage${i}）"
+        echo "  sage${i} は作成できませんでした（ターミナル高さ不足）"
+        echo "  賢者数を$((i-1))以下にしてください。"
+        echo ""
+        exit 1
+    }
+    # 新しく作られたペインは LAST_PANE + 1
+    LAST_PANE=$((LAST_PANE + 1))
 
-    # マギのペイン幅を35%に固定
+    # レイアウトを再調整してスペースを均等に再分配
+    tmux select-layout -t "nerv:0" main-vertical
+    # マギのペイン幅を35%に維持
     tmux resize-pane -t "nerv:0.0" -x 35%
+done
 
-    # Pane mapping: pane N = sage N (N >= 1)
-    for ((i=1; i<=SAGE_COUNT; i++)); do
-        SAGE_PANE_MAP[$i]=$i
-    done
-else
+# Pane mapping: sage番号 → pane番号
+# sage1=1, sage2=2, sage3=3, sage4=4, ...（シンプル！）
+for ((i=1; i<=SAGE_COUNT; i++)); do
+    SAGE_PANE_MAP[$i]=$i
+done
+
+if false; then
+    # 以下は使用されない（3列レイアウト削除）
     # 5-8 sages: 3列レイアウト (MAGI 左 30% | sage1-4 中 35% | sage5-8 右 35%)
-    # 注意: 7-8賢者はターミナルサイズにより起動失敗する可能性あり
+    # シンプルな分割方式: 中列を全て分割してから、右列を分割
 
     # Step 1: MAGI列 (pane 0) と右エリア (pane 1) を作成
     tmux split-window -h -t "nerv:0" -p 70 || {
@@ -386,86 +408,85 @@ else
         exit 1
     }
 
-    # Step 3: 中列 (pane 1) を2つに分割 → sage1, sage2
+    # Step 3: 中列 (pane 1) を4つに分割 (sage1-4 用)
+    # 新しく作ったペインを順次分割していく方式（-b なし、下に追加）
+    # Split 1: pane 1 → creates pane 3
     tmux split-window -v -t "nerv:0.1" || {
         echo ""
-        log_error "❌ ペイン作成エラー"
+        log_error "❌ ペイン作成エラー（中列分割 1/3）"
         echo "  ターミナルウィンドウの高さが不足しています。"
         echo ""
         exit 1
     }
-    # Now: pane 1 (sage1, top), pane 3 (sage2, bottom)
+    # Split 2: pane 3 → creates pane 4
+    tmux split-window -v -t "nerv:0.3" || {
+        echo ""
+        log_error "❌ ペイン作成エラー（中列分割 2/3）"
+        echo "  ターミナルウィンドウの高さが不足しています。"
+        echo ""
+        exit 1
+    }
+    # Split 3: pane 4 → creates pane 5
+    tmux split-window -v -t "nerv:0.4" || {
+        echo ""
+        log_error "❌ ペイン作成エラー（中列分割 3/3）"
+        echo "  ターミナルウィンドウの高さが不足しています。"
+        echo ""
+        exit 1
+    }
+    # 中列完成: pane 1 (sage1, top), pane 3 (sage2), pane 4 (sage3), pane 5 (sage4, bottom)
 
-    # Step 4: 右列を必要に応じて分割
+    # Step 4: 右列 (pane 2) を分割 (sage5-8 用)
+    # 新しく作ったペインを順次分割（-b なし）
     if [ $SAGE_COUNT -ge 6 ]; then
+        # Split 1: pane 2 → creates pane 6
         tmux split-window -v -t "nerv:0.2" || {
             echo ""
             log_error "❌ ペイン作成エラー（sage6）"
             echo "  ターミナルウィンドウの高さが不足しています。"
-            echo "  賢者数を5以下にするか、ウィンドウを縦に拡大してください。"
             echo ""
             exit 1
         }
-        # Now: pane 2 (sage5, top), pane 4 (sage6, bottom)
     fi
-
-    # Step 5: 中列をさらに2回分割 → sage3, sage4
-    tmux split-window -v -t "nerv:0.3" || {
-        echo ""
-        log_error "❌ ペイン作成エラー"
-        echo "  ターミナルウィンドウの高さが不足しています。"
-        echo ""
-        exit 1
-    }
-    # Now: pane 1 (sage1), pane 3 (sage2), pane 5 (sage3, bottom)
-    tmux split-window -v -t "nerv:0.5" || {
-        echo ""
-        log_error "❌ ペイン作成エラー"
-        echo "  ターミナルウィンドウの高さが不足しています。"
-        echo ""
-        exit 1
-    }
-    # Now: pane 1 (sage1), pane 3 (sage2), pane 5 (sage3), pane 6 (sage4, bottom)
-
-    # Step 6: 右列をさらに分割 (sage7-8)
     if [ $SAGE_COUNT -ge 7 ]; then
-        tmux split-window -v -t "nerv:0.4" || {
+        # Split 2: pane 6 → creates pane 7
+        tmux split-window -v -t "nerv:0.6" || {
             echo ""
             log_error "❌ ペイン作成エラー（sage7）"
-            echo "  ターミナルウィンドウの高さが不足しています。"
-            echo "  賢者数を6以下にするか、ウィンドウを縦に拡大してください。"
             echo ""
             exit 1
         }
-        # pane 2 (sage5), pane 4 (sage6), pane 7 (sage7, bottom)
     fi
     if [ $SAGE_COUNT -ge 8 ]; then
+        # Split 3: pane 7 → creates pane 8
         tmux split-window -v -t "nerv:0.7" || {
             echo ""
             log_error "❌ ペイン作成エラー（sage8）"
-            echo "  ターミナルウィンドウの高さが不足しています。"
-            echo "  賢者数を7以下にするか、ウィンドウを縦に拡大してください。"
             echo ""
             exit 1
         }
-        # pane 2 (sage5), pane 4 (sage6), pane 7 (sage7), pane 8 (sage8, bottom)
     fi
+    # 右列完成: pane 2 (sage5, top), pane 6 (sage6), pane 7 (sage7), pane 8 (sage8, bottom)
 
     # マギのペイン幅を30%に固定
     tmux resize-pane -t "nerv:0.0" -x 30%
 
     # Pane mapping after layout creation:
-    # 5 sages: pane 0=MAGI, 1=sage1, 3=sage2, 5=sage3, 6=sage4, 2=sage5
-    # 6 sages: pane 0=MAGI, 1=sage1, 3=sage2, 5=sage3, 6=sage4, 2=sage5, 4=sage6
-    # 7 sages: pane 0=MAGI, 1=sage1, 3=sage2, 5=sage3, 6=sage4, 2=sage5, 4=sage6, 7=sage7
-    # 8 sages: pane 0=MAGI, 1=sage1, 3=sage2, 5=sage3, 6=sage4, 2=sage5, 4=sage6, 7=sage7, 8=sage8
+    # 中列 (top to bottom): pane 1, 3, 4, 5 → sage1, sage2, sage3, sage4
+    # 右列 (top to bottom): pane 2, 6, 7, 8 → sage5, sage6, sage7, sage8
+    #
+    # 明確なマッピング:
+    # 5 sages: 0=MAGI, 1=sage1, 3=sage2, 4=sage3, 5=sage4, 2=sage5
+    # 6 sages: 0=MAGI, 1=sage1, 3=sage2, 4=sage3, 5=sage4, 2=sage5, 6=sage6
+    # 7 sages: 0=MAGI, 1=sage1, 3=sage2, 4=sage3, 5=sage4, 2=sage5, 6=sage6, 7=sage7
+    # 8 sages: 0=MAGI, 1=sage1, 3=sage2, 4=sage3, 5=sage4, 2=sage5, 6=sage6, 7=sage7, 8=sage8
 
     SAGE_PANE_MAP[1]=1
     SAGE_PANE_MAP[2]=3
-    SAGE_PANE_MAP[3]=5
-    SAGE_PANE_MAP[4]=6
+    SAGE_PANE_MAP[3]=4
+    SAGE_PANE_MAP[4]=5
     SAGE_PANE_MAP[5]=2
-    if [ $SAGE_COUNT -ge 6 ]; then SAGE_PANE_MAP[6]=4; fi
+    if [ $SAGE_COUNT -ge 6 ]; then SAGE_PANE_MAP[6]=6; fi
     if [ $SAGE_COUNT -ge 7 ]; then SAGE_PANE_MAP[7]=7; fi
     if [ $SAGE_COUNT -ge 8 ]; then SAGE_PANE_MAP[8]=8; fi
 fi
